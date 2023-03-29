@@ -4,11 +4,8 @@
 
 
 #Body Parameters
-m1 = 6*10^24                        #kg (approx earth mass)
-m2 = 400                            #kg
+mu = 1                              #DU^3 / TU^2
 
 #Initial positions/velo
-r1 = [0, 0, 0]                      #km
-r2 = [0, 700, 0]                    #km
-v1 = [0, 0, 0]                      #km/s
-v2 = [200, 0, 0]                    #km/s
+r = [0, 0, 0]                       #DU
+v = [0, 0, 0]                       #DU / TU
