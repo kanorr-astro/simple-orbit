@@ -11,8 +11,8 @@ mu = 1
 ae = 1
 
 #Initial Position/Velocity Vectors - Canonical Units
-r = np.array([0,1,1])
-v = np.array([-1,0,-0.05])
+r = np.array([0, 1, 1])
+v = np.array([-1, 0, -0.05])
 
 #calculate angular momentum (h):
 h = np.cross(r,v)
@@ -43,15 +43,15 @@ e = m.sqrt(1 + ((2*SME*util.magnitude(h)**2)/(mu**2)))
 #calculate orbit conic type:
 if util.magnitude(h) > 0:
     if e == 0:
-        conic = "circular"
+        conic = "Circular"
     elif (e > 0) and (e < 1):
-        conic = 'elliptic'
+        conic = 'Elliptic'
     elif e == 1:
-        conic = 'parabolic'
+        conic = 'Parabolic'
     elif e > 1:
-        conic = 'hyperbolic'
+        conic = 'Hyperbolic'
 else:
-    conic = 'degenerate'
+    conic = 'Suborbital/degenerate'
 
 #calculate inclination (i):
 i = m.acos(h[2]/util.magnitude(h))
@@ -65,9 +65,15 @@ peri = m.acos(np.dot(n,e_vect) / (util.magnitude(n) * util.magnitude(e_vect)))
 #Generate linspace for nu angles
 nu_raw = np.linspace(0, 2*m.pi, 100)
 nu_mod = []
-if e >= 1:
+if e >= 1.25:
     for nu in nu_raw:
-        if (nu > (7*m.pi / 8)) and (nu < (9*m.pi / 8)):
+        if (nu > (m.pi / 2)) and (nu < (3*m.pi / 2)):
+            None
+        else:
+            nu_mod.append(nu)
+elif (e > 1) and (e < 1.25):
+    for nu in nu_raw:
+        if (nu > (3*m.pi / 4)) and (nu < (5*m.pi / 4)):
             None
         else:
             nu_mod.append(nu)
@@ -77,9 +83,8 @@ else:
 #Using nu angles generate list of points in PQW orientation:
 PQW = []
 for nu in nu_mod:
-    PQW.append(np.array([util.radius(p,e,nu)*m.cos(nu), util.radius(p,e,nu)*m.sin(nu), 0]))
-
-
+    if util.radius(p,e,nu) >= 1:
+        PQW.append(np.array([util.radius(p,e,nu)*m.cos(nu), util.radius(p,e,nu)*m.sin(nu), 0]))
 
 #Break PQW coords into individual coord lists for plotting
 pcoord = []
@@ -132,21 +137,28 @@ print("Inclination(i): ", m.degrees(i))
 print("Longitude of Ascending Node(Omega): ", m.degrees(ascend))
 print("Argument of Periapsis: ", m.degrees(peri))
 
+#Frame sizer
+pqw_max_list = (max(pcoord), max(qcoord), max(wcoord), abs(min(pcoord)), abs(min(qcoord)), abs(min(wcoord)))
+ijk_max_list = (max(icoord), max(jcoord), max(kcoord), abs(min(icoord)), abs(min(jcoord)), abs(min(kcoord)))
+max_pqw = max(pqw_max_list)
+max_ijk = max(ijk_max_list)
 
+#plot orbit in pqw and ijk frames
 fig = plt.figure(figsize=(12,6))
 
 ax1 = fig.add_subplot(121, projection = '3d')
-ax1.set_xlim(-2, 2)
-ax1.set_ylim(-2, 2)
-ax1.set_zlim(-2, 2)
+ax1.set_xlim(-max_pqw, max_pqw)
+ax1.set_ylim(-max_pqw, max_pqw)
+ax1.set_zlim(-max_pqw, max_pqw)
 ax1.scatter(pcoord, qcoord, wcoord)
-ax1.title.set_text('PQW Plot of Orbit')
+ax1.title.set_text('PQW Frame Plot of Orbit \n Type: %s' %conic)
 
 ax2 = fig.add_subplot(122, projection = '3d')
-ax2.set_xlim(-2, 2)
-ax2.set_ylim(-2, 2)
-ax2.set_zlim(-2, 2)
+ax2.set_xlim(-max_ijk, max_ijk)
+ax2.set_ylim(-max_ijk, max_ijk)
+ax2.set_zlim(-max_ijk, max_ijk)
 ax2.plot_wireframe(px, py, pz, rstride=1, cstride=1, color='green', linewidth=0.5)
 ax2.scatter(icoord, jcoord, kcoord)
-ax2.title.set_text('IJK Plot of Orbit')
+ax2.title.set_text('IJK Frame Plot of Orbit \n Type: %s' %conic)
+
 plt.show()
