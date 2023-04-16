@@ -9,8 +9,8 @@ import utility as util
 mu = 1                              #DU^3 / TU^2
 
 #Initial positions/velo
-r = np.array([1, 0, 0])                       #DU
-v = np.array([0, 0.5, 0.05])                     #DU / TU
+r = np.array([0, 0, 1])                       #DU
+v = np.array([1, 0, 0])                     #DU / TU
 
 #calculate angular momentum (h)
 h = np.cross(r,v)
